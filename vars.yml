@@ -1,0 +1,25 @@
+---
+# you need to set these either here or as environment variables. If you use AAP, the VMware credential will expose these as environment vars.
+# vcenter_hostname:
+# vcenter_username:
+# vcenter_password:
+# vcenter_validate_certs: false
+
+# change this to something unique, so resources you manage will not conflict with other resources
+vcenter_resource_prefix: ""
+
+# you may want to change these vars, but probably not
+vcenter_folder: "{{ vcenter_resource_prefix }}-node-count-hackathon"
+test_vm_name: "{{ vcenter_resource_prefix }}-vm"
+test_vm_username: root
+test_vm_password: password
+
+#
+# please do not modify the template itself. You can clone the template, and update the name here
+#
+vm_template_name: rhel9
+
+# you should not change any of these vars
+vcenter_validate_certs: False
+vcenter_datacenter: Eco-Datacenter
+vcenter_cluster: Eco-Cluster

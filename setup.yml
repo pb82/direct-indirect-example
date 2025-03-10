@@ -1,0 +1,69 @@
+---
+- name: Create VM
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars.yml
+  environment:
+    VCENTER_HOSTNAME: "{{ vcenter_hostname | default(lookup('ansible.builtin.env', 'VCENTER_HOSTNAME')) }}"
+    VCENTER_USERNAME: "{{ vcenter_username | default(lookup('ansible.builtin.env', 'VCENTER_USERNAME')) }}"
+    VCENTER_PASSWORD: "{{ vcenter_password | default(lookup('ansible.builtin.env', 'VCENTER_PASSWORD')) }}"
+    VCENTER_VALIDATE_CERTS: "{{ vcenter_validate_certs | default(lookup('ansible.builtin.env', 'VCENTER_VALIDATE_CERTS')) }}"
+
+  pre_tasks:
+    - name: Check Inputs
+      ansible.builtin.assert:
+        that: vcenter_resource_prefix
+        fail_msg: You must set the variable vcenter_resource_prefix to some string
+
+  tasks:
+    - name: Create Hackathon Folder
+      vmware.vmware.folder:
+        datacenter: "{{ vcenter_datacenter }}"
+        folder_type: vm
+        relative_path: "{{ vcenter_folder }}"
+
+    # please do not modify this template. You can clone it if needed.
+    - name: Create VM
+      vmware.vmware.deploy_folder_template:
+        template_name: "{{ vm_template_name }}"
+        vm_name: "{{ test_vm_name }}"
+        vm_folder: "{{ vcenter_folder }}"
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+
+    - name: Power On VM
+      community.vmware.vmware_guest:
+        state: poweredon
+        name: "{{ test_vm_name }}"
+        folder: "{{ vcenter_folder }}"
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+
+    - name: Set Inventory Config Var
+      ansible.builtin.set_fact:
+        _inven_config: |
+          ---
+          plugin: vmware.vmware.vms
+          vcenter_hostname: {{ lookup('ansible.builtin.env', 'VCENTER_HOSTNAME') }}
+          vcenter_username: {{ lookup('ansible.builtin.env', 'VCENTER_USERNAME') }}
+          vcenter_password: {{ lookup('ansible.builtin.env', 'VCENTER_PASSWORD') }}
+          vcenter_validate_certs: {{ lookup('ansible.builtin.env', 'VCENTER_VALIDATE_CERTS') }}
+          search_paths:
+            - /{{ vcenter_datacenter }}/vm/{{ vcenter_folder }}
+          filters:
+            - name == '{{ test_vm_name }}'
+          compose:
+            ansible_remote_user: '"{{ test_vm_username }}"'
+            ansible_ssh_pass: '"{{ test_vm_password }}"'
+            inventory_hostname: '"{{ test_vm_name }}"'
+
+    - name: Print Inventory Config   # using pause because debug does not show multiline output :(
+      ansible.builtin.pause:
+        seconds: 1
+        prompt: "{{ _inven_config }}"
+
+    - name: Write Inventory Config To File
+      ansible.builtin.copy:
+        dest: "{{ playbook_dir }}/hosts.vms.yml"
+        content: "{{ _inven_config }}"

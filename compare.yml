@@ -1,0 +1,35 @@
+---
+- name: Get Indirect Node Counting Results
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars.yml
+  environment:
+    VCENTER_HOSTNAME: "{{ vcenter_hostname | default(lookup('ansible.builtin.env', 'VCENTER_HOSTNAME')) }}"
+    VCENTER_USERNAME: "{{ vcenter_username | default(lookup('ansible.builtin.env', 'VCENTER_USERNAME')) }}"
+    VCENTER_PASSWORD: "{{ vcenter_password | default(lookup('ansible.builtin.env', 'VCENTER_PASSWORD')) }}"
+    VCENTER_VALIDATE_CERTS: "{{ vcenter_validate_certs | default(lookup('ansible.builtin.env', 'VCENTER_VALIDATE_CERTS')) }}"
+
+  pre_tasks:
+    - name: Check Inputs
+      ansible.builtin.assert:
+        that: vcenter_resource_prefix
+        fail_msg: You must set the variable vcenter_resource_prefix to some string
+
+  tasks:
+    - name: Gather Guest Info
+      vmware.vmware.guest_info:
+        name: "{{ test_vm_name }}"
+      register: _o
+    - name: Debug
+      ansible.builtin.debug:
+        var: _o
+
+- name: Ping VM
+  hosts: "{{ test_vm_name | default('all') }}"
+  vars_files:
+    - vars.yml
+  gather_facts: true
+  tasks:
+    - name: Ping
+      ansible.builtin.ping: {}
