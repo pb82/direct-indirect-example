@@ -2,7 +2,7 @@
 
 ### Setup Environment
 
-This requires the version 1.11 of vmware.vmware, which will be released Mar 26th. If its unavailable, the [main](https://github.com/ansible-collections/vmware.vmware) branch can be used:
+This requires the latest version of vmware.vmware; the [main](https://github.com/ansible-collections/vmware.vmware) branch can be used:
 
 1. Install python requirements: `pip install -r https://github.com/ansible-collections/vmware.vmware/blob/main/requirements.txt`
 2. Install the collection: `ansible-galaxy collection install git@github.com:ansible-collections/vmware.vmware.git --force`
