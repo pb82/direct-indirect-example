@@ -5,7 +5,7 @@
 This requires the latest version of vmware.vmware; the [main](https://github.com/ansible-collections/vmware.vmware) branch can be used:
 
 1. Install python requirements: `pip install -r https://github.com/ansible-collections/vmware.vmware/blob/main/requirements.txt`
-2. Install the collection: `ansible-galaxy collection install git@github.com:ansible-collections/vmware.vmware.git --force`
+2. Install the collection: `ansible-galaxy collection install git@github.com:ansible-collections/vmware.vmware.git --force` or you can install the requirements.yml file located in this repo
 
 ### Setup Variables
 
